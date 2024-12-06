@@ -1,49 +1,49 @@
 # Unfuck Files From My Camera Please
 
-This program unfucks the filenames of files produced by my camera so that each
-file gets a unique filename.
+This program renames the files produced by my camera so that each one is unique.
+This allows me to put them all in the same directory when copying them to my
+server.
 
-As an example a file called `DSC_1234.EXT` could be renamed to `2024-12-06
-14:41:23 UTC.EXT` or the same with a suffix e.g. `2024-12-06 14:41:23
-00005.EXT` if there is a conflict in the timestamps.
+As an example a file called `DSC_1234.EXT` would be renamed to something along
+the lines of `2024-12-06 14:41:23.ext` or the same with a suffix e.g.
+`2024-12-06 14:41:23 00005.ext` if there is a conflict in the timestamps.
+
+Needs `mediainfo` and `exiv2` as it just calls those.
 
 ## Problem
 
-My camera produces files with names similar to `DSC_0001.MOV` or
-`DSC_0001.NEF`. This is annoying. For example it's impossible to keep dumping
-all files into the same directory because the names will conflict. This however
-makes a ton of sense to me if I took the photos or videos in several batches
+My camera produces files similar to `DSC_0001.MOV`, `DSC_0001.NEF` or
+`DSC_0001.NEF`. This is annoying as it's impossible to keep dumping all files
+into the same directory due to filename will conflicts. Doing that however makes
+a ton of sense to me if I took the photos or videos in several batches
 throughout the day and dumped them gradually as I keep photographing the same
 thing. 
 
-Also why are we using all caps in the extension name but that's unrelated.
+Another unrelated question: why are we using all caps in the extension names?
 
 ## Solution
 
-This program scans the target directory for all supported file types,
-presumably files that came from a digital camera. It then attempts to extract
-the timestamp from them. Once that's done it will prepare the plan for renaming
-the files and present it to the user. Once approved all files are renamed.
+This program scans the target directory for all supported file types, presumably
+files that came from a digital camera, and extracts timestamps from them.  Once
+that's done it prepares a plan for renaming the files and presents it to the
+user. Once approved all files are renamed.
 
 What if the file names conflict because there isn't enough granularity in the
-timestamps contained within the files? In that case the files will get a suffix
-which does indeed go up consistently because that's when adding one makes sense
-to me as we need to differentiate the files somehow and also keep them ordered.
-The suffixes will be generated based on the original sequence numbers so that
-the files are still in order and the relative position will be kept. The
-filenames should still be easy enough to parse if someone wants to later.
+timestamps? In that case the files will indeed get a suffix. The program tries
+to keep the filenames lexicographically sorted in the same order in which they
+came from the camera.
 
-The work flow should be as follows:
-- Copy all files from the SD card into the target directory which may already
-  contain other files.
-- Run the program on that directory to unfuck them.
+The work flow could be as follows:
+- Copy all files from the SD card into some directory which may already contain
+other files.
+- Run the program on that directory to rename them.
 
-My camera produces incomoplete timestamps as it doesn't save the timezone in
-the EXIF data so that's a problem.
+My camera produces incomplete timestamps as it doesn't save the timezone in the
+EXIF data so that's a problem.
 
 The program renames the files to the time and date in UTC. Reasoning:
 - from what I'm seeing the timestamps in the files are garbage most of the time
-  and either contain timestamps in UTC or without time zone information so
+  and either contain timestamps in UTC or are without time zone information so
   technically we are not erasing any data
 - if you travel a lot I feel like that's actually less confusing
 
@@ -53,17 +53,32 @@ local time to be the local time zone. Reasoning:
 - I almost exclusively dump files on my desktop at home so it works 99% of the
   time for me
 
+## Compatibility
+
+If a camera/format combo is here then the files from it it are supported, if not
+I can easily make sure they are if you send me an example file. 
+
+Time zone info:
+- `present` means that the time zone info is present and the timestamp can be parsed correctly
+- `missing` means that the time zone info is missing and the timestamp will be interpreted as being in the local time zone
+
+| Camera | File format | Time zone info | 
+| --- | --- | --- |
+| Nikon D5300 | `nef` | missing |
+| Nikon D5300 | `mov` | present |
+| Nikon D5300 | `jpg` | missing |
+
+
 ## Design goals
 
-Make this program as painless to run as possible. No configs, no flags. Just
-run `unfuck-files-from-my-camera-please /path/to/directory` and the files in
-that directory are unfucked.
-pl
+Make this program as painless to run as possible. No configs, no flags. Just run
+`unfuck-files-from-my-camera-please /path/to/directory`.
+
 I don't want to remember anything e.g. where the config is, I don't want to do
 anything e.g. adjust the config or set the flags. I just want this program to
 unfuck the files files from my camera please. I don't even want to be able to
 configure anything.
 
-The only allowed flag is to override the user confirmation.
+The only potentially allowed flag is to override the user's confirmation.
 
-The format `YYYY-MM-DD HH:MM:SS` is the only allowed timestamp format.
+The format `YYYY-MM-DD HH:MM:SS` is the only valid output timestamp format.
