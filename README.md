@@ -13,7 +13,7 @@ See [Compatiblity](#compatibility), it's easy to add new ones.
 
 ## Installation
 
-    $ go install github.com/boreq/unfuck-files-from-my-camera-please
+    $ go install github.com/boreq/unfuck-files-from-my-camera-please@latest
 
 ## Dependencies 
 
