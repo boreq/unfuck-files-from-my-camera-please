@@ -8,7 +8,14 @@ As an example a file called `DSC_1234.EXT` would be renamed to something along
 the lines of `2024-12-06 14:41:23.ext` or the same with a suffix e.g.
 `2024-12-06 14:41:23 00005.ext` if there is a conflict in the timestamps.
 
+## Deps
+
 Needs `mediainfo` and `exiv2` as it just calls those.
+
+### Arch Linux
+
+Install [`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/) and
+[`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/). 
 
 ## Problem
 
