@@ -66,7 +66,7 @@ func TestFindInfo(t *testing.T) {
   }
 }
 `,
-			ExpectedInfo: extractor.MustNewInfo(time.Date(2024, 11, 14, 9, 45, 7, 0, time.UTC)),
+			ExpectedInfo: extractor.MustNewInfo(time.Date(2024, 11, 14, 10, 45, 7, 0, time.Local)),
 		},
 		{
 			Name: "nikon d5300 mov",
@@ -190,6 +190,7 @@ func TestFindInfo(t *testing.T) {
 
 			i, err := mediainfo.FindInfo(r)
 			require.NoError(t, err)
+			assert.Equal(t, i.Timestmap().Location().String(), testCase.ExpectedInfo.Timestmap().Location().String())
 			if !assert.True(t, i.Timestmap().Equal(testCase.ExpectedInfo.Timestmap())) {
 				fmt.Printf("\n%s != %s\n", i.Timestmap().String(), testCase.ExpectedInfo.Timestmap().String())
 			}
