@@ -8,6 +8,9 @@ As an example a file called `DSC_1234.EXT` would be renamed to something along
 the lines of `2024-12-06 14:41:23.ext` or the same with a suffix e.g.
 `2024-12-06 14:41:23 00005.ext` if there is a conflict in the timestamps.
 
+I guess this could actually be useful to someone who has an old Nikon camera.
+See [Compatiblity](#compatibility), it's easy to add new ones.
+
 ## Deps
 
 Needs `mediainfo` and `exiv2` as it just calls those.
@@ -62,8 +65,9 @@ local time to be the local time zone. Reasoning:
 
 ## Compatibility
 
-If a camera/format combo is here then the files from it it are supported, if not
-I can easily make sure they are if you send me an example file. 
+If the camera/format combo is here then the files from it it are supported, if
+not I can easily add support for a camera if you send me an example file that
+you would like to rename. 
 
 Time zone info:
 - `present` means that the time zone info is present and the timestamp can be parsed correctly
@@ -78,13 +82,13 @@ Time zone info:
 
 ## Design goals
 
-Make this program as painless to run as possible. No configs, no flags. Just run
-`unfuck-files-from-my-camera-please /path/to/directory`.
+Make this program as painless to run as possible. No configs, no flags. Just
+run `unfuck-files-from-my-camera-please /path/to/directory` or run it without
+the arguments to process the current directory.
 
-I don't want to remember anything e.g. where the config is, I don't want to do
-anything e.g. adjust the config or set the flags. I just want this program to
-unfuck the files files from my camera please. I don't even want to be able to
-configure anything.
+There should be no need to remember anything e.g. where the config is or do
+anything e.g. adjust the config or set the flags. The progrma should just
+unfuck the files files from my camera please. 
 
 The only potentially allowed flag is to override the user's confirmation.
 
