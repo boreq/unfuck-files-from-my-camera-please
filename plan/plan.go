@@ -1,11 +1,14 @@
 package plan
 
 import (
+	"context"
 	"fmt"
 	"iter"
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
+	"sort"
 	"strings"
 
 	"github.com/boreq/errors"
@@ -25,8 +28,6 @@ func NewPlan(config Config, scanner DirectoryScanner, extractor InfoExtractor) (
 
 	var paths []string
 
-	fmt.Println("Listing files...")
-	p := pb.StartNew(0)
 	for path, err := range scanner {
 		if err != nil {
 			return nil, errors.Wrap(err, "directory scanner returned an error")
@@ -42,41 +43,79 @@ func NewPlan(config Config, scanner DirectoryScanner, extractor InfoExtractor) (
 		}
 
 		paths = append(paths, path)
-		p.Increment()
 	}
-	p.Finish()
 
 	fmt.Println("Determining how to rename files...")
-	p = pb.StartNew(len(paths))
-	for path, err := range scanner {
-		if err != nil {
-			return nil, errors.Wrap(err, "directory scanner returned an error")
-		}
+	p := pb.StartNew(len(paths))
+	defer p.Finish()
 
-		ext, err := NewExtensionFromPath(path)
-		if err != nil {
-			return nil, errors.Wrapf(err, "error creating an extension from path '%s'", path)
-		}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-		if !config.IsInExtensionsToProcess(ext) {
-			continue
-		}
+	chTasks := make(chan orderedTask)
+	chResults := make(chan orderedResult)
 
-		rename, err := NewRename(path, extractor)
-		if err != nil {
-			return nil, errors.Wrapf(err, "error creating a rename for path '%s'", path)
-		}
-
-		fmt.Println(path)
-
-		if err := plan.addRename(rename); err != nil {
-			return nil, errors.Wrapf(err, "error adding a rename for path '%s'", path)
-		}
-		p.Increment()
+	for range 2 * runtime.NumCPU() {
+		go func() {
+			for {
+				select {
+				case task := <-chTasks:
+					rename, err := NewRename(task.path, extractor)
+					select {
+					case chResults <- orderedResult{task: task, rename: rename, err: err}:
+					case <-ctx.Done():
+						return
+					}
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
 	}
-	p.Finish()
+
+	go func() {
+		for i, path := range paths {
+			select {
+			case chTasks <- orderedTask{index: i, path: path}:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	var results []orderedResult
+	for range len(paths) {
+		result := <-chResults
+		if err := result.err; err != nil {
+			return nil, errors.Wrapf(err, "error processing '%s'", result.task.path)
+		}
+
+		p.Increment()
+		results = append(results, result)
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].task.index < results[j].task.index
+	})
+
+	for _, result := range results {
+		if err := plan.addRename(result.rename); err != nil {
+			return nil, errors.Wrapf(err, "error adding a rename for path '%s'", result.task.path)
+		}
+	}
 
 	return plan, nil
+}
+
+type orderedTask struct {
+	index int
+	path  string
+}
+
+type orderedResult struct {
+	task   orderedTask
+	rename Rename
+	err    error
 }
 
 func (p *Plan) Renames() []*Rename {
