@@ -74,16 +74,3 @@ func parseTimestamp(s string) (time.Time, error) {
 
 	return time.Time{}, fmt.Errorf("error parsing the timestamp '%s'", s)
 }
-
-type mediainfoOutput struct {
-	Media mediaInfoOutputMedia `json:"media"`
-}
-
-type mediaInfoOutputMedia struct {
-	Track []mediaInfoOutputMediaTrack `json:"track"`
-}
-
-type mediaInfoOutputMediaTrack struct {
-	Type        string `json:"@type"`
-	EncodedDate string `json:"Encoded_Date"`
-}

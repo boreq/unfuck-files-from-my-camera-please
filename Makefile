@@ -1,11 +1,11 @@
 BUILD_DIRECTORY=_build
-PROGRAM_NAME=unfuck-names-of-files-from-my-camera-please
+PROGRAM_NAME=unfuck-files-from-my-camera-please
 
 .PHONY: all
 all: test lint build
 
 .PHONY: ci
-ci: tools dependencies generate fmt check-repository-unchanged test lint build
+ci: tools fmt check-repository-unchanged test lint build
 
 .PHONY: fmt
 fmt:
@@ -21,7 +21,7 @@ build: build-directory
 
 .PHONY: check-repository-unchanged
 check-repository-unchanged:
-	./_tools/check_repository_unchanged.sh
+	./tools/check_repository_unchanged.sh
 
 .PHONY: tools
 tools:
