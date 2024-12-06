@@ -11,7 +11,11 @@ the lines of `2024-12-06 14:41:23.ext` or the same with a suffix e.g.
 I guess this could actually be useful to someone who has an old Nikon camera.
 See [Compatiblity](#compatibility), it's easy to add new ones.
 
-## Deps
+## Installation
+
+    $ go install github.com/boreq/unfuck-files-from-my-camera-please
+
+## Dependencies 
 
 Needs `mediainfo` and `exiv2` as it just calls those.
 
