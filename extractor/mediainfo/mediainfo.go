@@ -37,7 +37,6 @@ func Extractor(filepath string) (extractor.Info, error) {
 }
 
 func FindInfo(jsonOutput io.Reader) (extractor.Info, error) {
-	// let's read all of this because we may need to put it in the error message
 	b, err := io.ReadAll(jsonOutput)
 	if err != nil {
 		return extractor.Info{}, errors.Wrap(err, "error reading the data")
@@ -48,7 +47,7 @@ func FindInfo(jsonOutput io.Reader) (extractor.Info, error) {
 		return extractor.Info{}, errors.Wrap(err, "error decoding json")
 	}
 
-	// try to find general
+	// try to find 'General'
 	for _, track := range output.Media.Track {
 		if track.Type == typeGeneral {
 			if t, err := parseTimestamp(track.EncodedDate); err == nil {
@@ -68,12 +67,10 @@ func FindInfo(jsonOutput io.Reader) (extractor.Info, error) {
 }
 
 func parseTimestamp(s string) (time.Time, error) {
-	// nef
 	if t, err := time.ParseInLocation("2006:01:02 15:04:05", s, time.Local); err == nil {
 		return t, nil
 	}
 
-	// mov
 	if t, err := time.Parse("2006-01-02 15:04:05 MST", s); err == nil {
 		return t, nil
 	}
