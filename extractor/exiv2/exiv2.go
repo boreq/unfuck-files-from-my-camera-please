@@ -17,7 +17,7 @@ const (
 )
 
 func Extractor(filepath string) (extractor.Info, error) {
-	cmd := exec.Command("exiv2", "--Output=JSON", filepath)
+	cmd := exec.Command("exiv2", filepath)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

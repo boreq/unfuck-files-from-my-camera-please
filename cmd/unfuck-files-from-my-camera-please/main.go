@@ -9,6 +9,8 @@ import (
 
 	"github.com/boreq/errors"
 	"github.com/boreq/guinea"
+	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor"
+	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor/exiv2"
 	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor/mediainfo"
 	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/plan"
 	"github.com/cheggaaa/pb/v3"
@@ -48,18 +50,26 @@ https://github.com/boreq/unfuck-files-from-my-camera-please/issues
 }
 
 func run(c guinea.Context) error {
-	config, err := plan.NewConfig([]plan.Extension{
-		plan.MustNewExtension("nef"),
-		plan.MustNewExtension("mov"),
+	extractor := NewDispatchingExtractor(map[plan.Extension]plan.InfoExtractor{
+		plan.MustNewExtension("nef"):  mediainfo.Extractor,
+		plan.MustNewExtension("mov"):  mediainfo.Extractor,
+		plan.MustNewExtension("jpg"):  exiv2.Extractor,
+		plan.MustNewExtension("jpeg"): exiv2.Extractor,
 	})
+
+	var supportedExtensions []plan.Extension
+	for extension := range extractor.m {
+		supportedExtensions = append(supportedExtensions, extension)
+	}
+
+	config, err := plan.NewConfig(supportedExtensions)
 	if err != nil {
 		return errors.Wrap(err, "error creating the config")
 	}
 
 	scanner := scanDirectory(c.Arguments[0])
-	extractor := mediainfo.Extractor
 
-	plan, err := plan.NewPlan(config, scanner, extractor)
+	plan, err := plan.NewPlan(config, scanner, extractor.Extractor)
 	if err != nil {
 		return errors.Wrap(err, "error creating a plan")
 	}
@@ -106,21 +116,49 @@ func run(c guinea.Context) error {
 
 func scanDirectory(directory string) plan.DirectoryScanner {
 	return func(yield func(string, error) bool) {
+		yieldReturnedFalse := false
 		if err := filepath.WalkDir(directory, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
-				yield("", err)
+				if !yield("", err) {
+					yieldReturnedFalse = true
+				}
 				return errors.Wrap(err, "func received an error")
 			}
 
 			if !d.IsDir() {
 				if !yield(path, nil) {
+					yieldReturnedFalse = true
 					return errors.New("yield returned false")
 				}
 			}
 
 			return nil
 		}); err != nil {
-			yield("", errors.Wrap(err, "walkdir returned an error"))
+			if !yieldReturnedFalse {
+				yield("", errors.Wrap(err, "walkdir returned an error"))
+			}
 		}
 	}
+}
+
+type DispatchingExtractor struct {
+	m map[plan.Extension]plan.InfoExtractor
+}
+
+func NewDispatchingExtractor(m map[plan.Extension]plan.InfoExtractor) DispatchingExtractor {
+	return DispatchingExtractor{m: m}
+}
+
+func (d *DispatchingExtractor) Extractor(filepath string) (extractor.Info, error) {
+	extension, err := plan.NewExtensionFromPath(filepath)
+	if err != nil {
+		return extractor.Info{}, errors.Wrap(err, "error extracting the extension")
+	}
+
+	e, ok := d.m[extension]
+	if !ok {
+		return extractor.Info{}, errors.Wrapf(err, "extractor for extension '%s' not found", extension.WithoutDot())
+	}
+
+	return e(filepath)
 }
