@@ -28,5 +28,5 @@ jobs:
       - name: Store the built binary
         uses: actions/upload-artifact@v4
         with:
-            name: eggplant
+            name: unfuck-files-from-my-camera-please
             path: _build/unfuck-files-from-my-camera-please
