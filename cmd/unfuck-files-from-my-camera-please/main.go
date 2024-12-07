@@ -9,10 +9,10 @@ import (
 
 	"github.com/boreq/errors"
 	"github.com/boreq/guinea"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor/exiv2"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor/mediainfo"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/plan"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor/exiv2"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor/mediainfo"
+	"github.com/boreq/unfuck-files-from-my-camera-please/plan"
 	"github.com/cheggaaa/pb/v3"
 )
 

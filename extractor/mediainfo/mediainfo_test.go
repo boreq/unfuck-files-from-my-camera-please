@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor/mediainfo"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor/mediainfo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

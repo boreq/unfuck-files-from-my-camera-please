@@ -1,4 +1,4 @@
-module github.com/boreq/unfuck-names-of-files-from-my-camera-please
+module github.com/boreq/unfuck-files-from-my-camera-please
 
 go 1.23.3
 

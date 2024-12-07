@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor"
 	"github.com/cheggaaa/pb/v3"
 )
 

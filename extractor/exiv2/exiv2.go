@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/boreq/errors"
-	"github.com/boreq/unfuck-names-of-files-from-my-camera-please/extractor"
+	"github.com/boreq/unfuck-files-from-my-camera-please/extractor"
 )
 
 const (
