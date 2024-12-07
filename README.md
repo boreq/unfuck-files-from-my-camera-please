@@ -21,8 +21,9 @@ Needs `mediainfo` and `exiv2` as it just calls those.
 
 ### Arch Linux
 
-Install [`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/) and
-[`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/). 
+Install [`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/)
+and [`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/).
+
 
 ## Problem
 
@@ -91,7 +92,7 @@ run `unfuck-files-from-my-camera-please /path/to/directory` or run it without
 the arguments to process the current directory.
 
 There should be no need to remember anything e.g. where the config is or do
-anything e.g. adjust the config or set the flags. The progrma should just
+anything e.g. adjust the config or set the flags. The program should just
 unfuck the files files from my camera please. 
 
 The only potentially allowed flag is to override the user's confirmation.
