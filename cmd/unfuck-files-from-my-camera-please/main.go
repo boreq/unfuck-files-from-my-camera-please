@@ -19,8 +19,6 @@ import (
 func main() {
 	if err := guinea.Run(&cmd); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		fmt.Println("")
-		fmt.Println()
 		os.Exit(1)
 	}
 }
@@ -30,8 +28,8 @@ var cmd = guinea.Command{
 		{
 			Name:        "directory",
 			Multiple:    false,
-			Optional:    false,
-			Description: "The directory which contains the files which should be unfucked.",
+			Optional:    true,
+			Description: "The directory which contains the files which should be unfucked. Defaults to current directory.",
 		},
 	},
 	Options: []guinea.Option{
@@ -45,6 +43,10 @@ var cmd = guinea.Command{
 	ShortDescription: "a program which unfucks the files from my camera",
 	Description: `This program unfucks the files from my camera.
 
+Instructions:
+https://github.com/boreq/unfuck-files-from-my-camera-please
+
+Support more formats, cameras, report bugs:
 https://github.com/boreq/unfuck-files-from-my-camera-please/issues
 	`,
 }
@@ -67,39 +69,46 @@ func run(c guinea.Context) error {
 		return errors.Wrap(err, "error creating the config")
 	}
 
-	scanner := scanDirectory(c.Arguments[0])
+	directory := "."
+	if len(c.Arguments) > 0 {
+		directory = c.Arguments[0]
+	}
+
+	scanner := scanDirectory(directory)
 
 	plan, err := plan.NewPlan(config, scanner, extractor.Extractor)
 	if err != nil {
 		return errors.Wrap(err, "error creating a plan")
 	}
 
-	fmt.Println()
-	fmt.Println("I'm going to rename the following files:")
+	if !c.Options["just-fuck-my-shit-up"].Bool() {
+		fmt.Println()
+		fmt.Println("I'm going to rename the following files:")
 
-	thereIsSomethingToDo := false
-	for _, rename := range plan.Renames() {
-		if !rename.SkipMe() {
-			thereIsSomethingToDo = true
-			fmt.Printf("%s -> %s\n", rename.SourcePath(), rename.TargetPath())
+		thereIsSomethingToDo := false
+		for _, rename := range plan.Renames() {
+			if !rename.SkipMe() {
+				thereIsSomethingToDo = true
+				fmt.Printf("%s -> %s\n", rename.SourcePath(), rename.TargetPath())
+			}
 		}
-	}
 
-	if !thereIsSomethingToDo {
-		fmt.Println("None! Perhaps the program is being executed on an empty directory or all files have been renamed already?")
-		return nil
-	}
+		if !thereIsSomethingToDo {
+			fmt.Println("None! Perhaps the program is being executed on an empty directory or all files have been renamed already?")
+			return nil
+		}
 
-	fmt.Println()
-	fmt.Printf("Does this look reasonable? [y/N] ")
+		fmt.Println()
+		fmt.Printf("Does this look reasonable? [y/N] ")
 
-	var input string
-	if _, err := fmt.Scanln(&input); err != nil {
-		return errors.Wrap(err, "error reading user input")
-	}
+		var input string
+		if _, err := fmt.Scanln(&input); err != nil {
+			return errors.Wrap(err, "error reading user input")
+		}
 
-	if strings.ToLower(input) != "y" {
-		return errors.Wrap(err, "the response was different than 'y'")
+		if strings.ToLower(input) != "y" {
+			return errors.Wrap(err, "the response was different than 'y'")
+		}
 	}
 
 	p := pb.StartNew(len(plan.Renames()))
