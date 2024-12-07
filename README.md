@@ -1,8 +1,8 @@
 # Unfuck Files From My Camera Please
 
-This program renames the files produced by my camera so that each one is unique.
-This allows me to put them all in the same directory when copying them to my
-server.
+This program renames the files produced by my camera so that each filename is
+unique. This allows me to put them all in the same directory when copying them
+to my server.
 
 As an example a file called `DSC_1234.EXT` would be renamed to something along
 the lines of `2024-12-06 14:41:23.ext` or the same with a suffix e.g.
@@ -13,17 +13,19 @@ See [Compatiblity](#compatibility), it's easy to add new ones.
 
 ## Installation
 
+### Arch Linux
+
+### Manual
+
+You need the Go programming language toolchain.
+
     $ go install github.com/boreq/unfuck-files-from-my-camera-please@latest
 
-## Dependencies 
+This program simply calls `mediainfo` and `exiv2` so you need them installed.
 
-Needs `mediainfo` and `exiv2` as it just calls those.
-
-### Arch Linux
 
 Install [`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/)
 and [`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/).
-
 
 ## Problem
 
@@ -53,8 +55,8 @@ The work flow could be as follows:
 other files.
 - Run the program on that directory to rename them.
 
-My camera produces incomplete timestamps as it doesn't save the timezone in the
-EXIF data so that's a problem.
+Nikon 5300 produces incomplete timestamps as it doesn't save the time zone in
+the metadata in some cases so that's a problem.
 
 The program renames the files to the time and date in UTC. Reasoning:
 - from what I'm seeing the timestamps in the files are garbage most of the time
@@ -62,7 +64,7 @@ The program renames the files to the time and date in UTC. Reasoning:
   technically we are not erasing any data
 - if you travel a lot I feel like that's actually less confusing
 
-If there is no zime zone info in the file then the program just guesses the
+If there is no time zone info in the file then the program just guesses the
 local time to be the local time zone. Reasoning:
 - I never change the time and date on my camera and it's set to where I live
 - I almost exclusively dump files on my desktop at home so it works 99% of the
@@ -75,15 +77,16 @@ not I can easily add support for a camera if you send me an example file that
 you would like to rename. 
 
 Time zone info:
-- `present` means that the time zone info is present and the timestamp can be parsed correctly
-- `missing` means that the time zone info is missing and the timestamp will be interpreted as being in the local time zone
+- `present` - the time zone info is present and the timestamp can be parsed correctly
+- `missing` - the time zone info is missing and the timestamp will be interpreted as being in the local time zone
+
+It probably supports all old Nikons but I have no way to check.
 
 | Camera | File format | Time zone info | 
 | --- | --- | --- |
-| Nikon D5300 | `nef` | missing |
-| Nikon D5300 | `mov` | present |
-| Nikon D5300 | `jpg` | missing |
-
+| Nikon D5300 | `nef` | `missing` |
+| Nikon D5300 | `mov` | `present` |
+| Nikon D5300 | `jpg` | `missing` |
 
 ## Design goals
 
