@@ -16,6 +16,8 @@ import (
 	"github.com/cheggaaa/pb/v3"
 )
 
+const workersPerCPU = 4
+
 type DirectoryScanner iter.Seq2[string, error]
 type InfoExtractor func(filepath string) (extractor.Info, error)
 
@@ -55,7 +57,7 @@ func NewPlan(config Config, scanner DirectoryScanner, extractor InfoExtractor) (
 	chTasks := make(chan orderedTask)
 	chResults := make(chan orderedResult)
 
-	for range 2 * runtime.NumCPU() {
+	for range workersPerCPU * runtime.NumCPU() {
 		go func() {
 			for {
 				select {
