@@ -13,19 +13,15 @@ See [Compatiblity](#compatibility), it's easy to add new ones.
 
 ## Installation
 
-### Arch Linux
-
-### Manual
-
 You need the Go programming language toolchain.
 
     $ go install github.com/boreq/unfuck-files-from-my-camera-please@latest
 
 This program simply calls `mediainfo` and `exiv2` so you need them installed.
 
-
-Install [`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/)
-and [`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/).
+On Arch Linux install
+[`mediainfo`](https://archlinux.org/packages/extra/x86_64/mediainfo/) and
+[`exiv2`](https://archlinux.org/packages/extra/x86_64/exiv2/).
 
 ## Problem
 
