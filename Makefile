@@ -26,7 +26,6 @@ check-repository-unchanged:
 .PHONY: tools
 tools:
 	 go install honnef.co/go/tools/cmd/staticcheck@latest
-	 go install github.com/google/wire/cmd/wire@latest
 	 go install github.com/rinchsan/gosimports/cmd/gosimports@v0.3.5 # https://github.com/golang/go/issues/20818
 
 .PHONY: lint
