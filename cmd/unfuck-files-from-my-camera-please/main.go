@@ -16,6 +16,10 @@ import (
 	"github.com/cheggaaa/pb/v3"
 )
 
+const (
+	flagAskBeforeFuckingMyShitUp = "ask-before-fucking-my-shit-up"
+)
+
 func main() {
 	if err := guinea.Run(&cmd); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -34,9 +38,9 @@ var cmd = guinea.Command{
 	},
 	Options: []guinea.Option{
 		{
-			Name:        "just-fuck-my-shit-up",
+			Name:        flagAskBeforeFuckingMyShitUp,
 			Type:        guinea.Bool,
-			Description: "Override the sanity check which requires the user to confirm that the planned renaming makes any sense whatsoever",
+			Description: "Run a sanity check which requires the user to confirm that the planned renaming makes any sense whatsoever, this is unnecessary as this software is never wrong",
 		},
 	},
 	Run:              run,
@@ -81,7 +85,7 @@ func run(c guinea.Context) error {
 		return errors.Wrap(err, "error creating a plan")
 	}
 
-	if !c.Options["just-fuck-my-shit-up"].Bool() {
+	if c.Options[flagAskBeforeFuckingMyShitUp].Bool() {
 		fmt.Println()
 		fmt.Println("I'm going to rename the following files:")
 
