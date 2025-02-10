@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -20,6 +21,12 @@ const workersPerCPU = 4
 
 type DirectoryScanner iter.Seq2[string, error]
 type InfoExtractor func(filepath string) (extractor.Info, error)
+
+var nameRegex = regexp.MustCompile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}(| [0-9]{2}).[a-z]+")
+
+func ItsVeryLikelyThisFileWasAlreadyRenamedByThisSoftware(filename string) bool {
+	return nameRegex.MatchString(filename)
+}
 
 type Plan struct {
 	renames []*Rename
@@ -38,6 +45,12 @@ func NewPlan(config Config, scanner DirectoryScanner, extractor InfoExtractor) (
 		ext, err := NewExtensionFromPath(path)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error creating an extension from path '%s'", path)
+		}
+
+		_, filename := filepath.Split(path)
+
+		if !config.DoNotSkipAnyFiles() && ItsVeryLikelyThisFileWasAlreadyRenamedByThisSoftware(filename) {
+			continue
 		}
 
 		if !config.IsInExtensionsToProcess(ext) {
@@ -308,15 +321,17 @@ func (s *Extension) WithoutDot() string {
 
 type Config struct {
 	extensionsToProcess []Extension
+	doNotSkipAnyFiles   bool
 }
 
-func NewConfig(extensionsToProcess []Extension) (Config, error) {
+func NewConfig(extensionsToProcess []Extension, doNotSkipAnyFiles bool) (Config, error) {
 	if len(extensionsToProcess) == 0 {
 		return Config{}, errors.New("list of extensions to process is empty, I'd say running this program with this config makes no sense")
 	}
 
 	return Config{
 		extensionsToProcess: extensionsToProcess,
+		doNotSkipAnyFiles:   doNotSkipAnyFiles,
 	}, nil
 }
 
@@ -327,4 +342,8 @@ func (c Config) IsInExtensionsToProcess(extension Extension) bool {
 		}
 	}
 	return false
+}
+
+func (c Config) DoNotSkipAnyFiles() bool {
+	return c.doNotSkipAnyFiles
 }

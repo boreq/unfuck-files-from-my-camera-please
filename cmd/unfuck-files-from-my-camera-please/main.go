@@ -18,6 +18,7 @@ import (
 
 const (
 	flagAskBeforeFuckingMyShitUp = "ask-before-fucking-my-shit-up"
+	flagForce                    = "force-consensually"
 )
 
 func main() {
@@ -41,6 +42,11 @@ var cmd = guinea.Command{
 			Name:        flagAskBeforeFuckingMyShitUp,
 			Type:        guinea.Bool,
 			Description: "Run a sanity check which requires the user to confirm that the planned renaming makes any sense whatsoever, this is unnecessary as this software is never wrong",
+		},
+		{
+			Name:        flagForce,
+			Type:        guinea.Bool,
+			Description: "Force the program to rescan the directory without applying heuristics which skip already renamed files, the program is never wrong so it knows that it didn't make a mistake and you are the one that's wrong but it will nontheless do what you ask of it and rescan all the files.",
 		},
 	},
 	Run:              run,
@@ -68,7 +74,7 @@ func run(c guinea.Context) error {
 		supportedExtensions = append(supportedExtensions, extension)
 	}
 
-	config, err := plan.NewConfig(supportedExtensions)
+	config, err := plan.NewConfig(supportedExtensions, c.Options[flagForce].Bool())
 	if err != nil {
 		return errors.Wrap(err, "error creating the config")
 	}
